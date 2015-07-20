@@ -6,15 +6,14 @@ var GameOfLife = function(params){
   // User-set params
   var num_cells_y = params["init_cells"].length,
       num_cells_x = params["init_cells"][0].length,
-      cell_width  = params["cell_width"]  || 10,
-      cell_height = params["cell_height"] || 10,
+      side_length  = params["side_length"]  || 5,
       init_cells  = params["init_cells"]  || [],
       canvas_id   = params["canvas_id"]   || "life",
 
       colourful   = params["colourful"] || params["colorful"] || false,
 
       cell_array = [],
-      display     = new GameDisplay(num_cells_x, num_cells_y, cell_width, cell_height, canvas_id, colourful),
+      display     = new GameDisplay(num_cells_x, num_cells_y, side_length, canvas_id, colourful),
       interval = null,    // Will store reference to setInterval method -- this should maybe be part of GameDisplay
       init        = function() {
         // Convert init_cells array of 0's and 1's to actual Cell objects
@@ -141,29 +140,31 @@ var GameOfLife = function(params){
   };
 };
 
+var sq3 = Math.sqrt(3);
+
 // This is an object that will take care of all display-related features.
 // Theoretically, you should be able to use any method of display without
 // too much extra code. i.e. if you want to display the game using HTML tables,
 // svg, or whatever other method you feel like. Just create a new <___>Display
 // Object!
-var GameDisplay = function(num_cells_x, num_cells_y, cell_width, cell_height, canvas_id, colourful) {
+var GameDisplay = function(num_cells_x, num_cells_y, side_length, canvas_id, colourful) {
   var canvas = document.getElementById(canvas_id),
       ctx = canvas.getContext && canvas.getContext('2d'),
-      width_pixels = num_cells_x * cell_width,
-      height_pixels = num_cells_y * cell_height,
+      width_pixels = num_cells_x * side_length,
+      height_pixels = num_cells_y * side_length,
       drawGridLines = function() {
         ctx.lineWidth = 1;
         ctx.strokeStyle = "rgba(255, 0, 0, 1)";
         ctx.beginPath();
         // foreach column
         for (var i = 0; i <= num_cells_x; i++) {
-          ctx.moveTo(i*cell_width, 0);
-          ctx.lineTo(i*cell_width, height_pixels);
+          ctx.moveTo(i*side_length, 0);
+          ctx.lineTo(i*side_length, height_pixels);
         }
         // foreach row
         for (var j = 0; j <= num_cells_y; j++) {
-          ctx.moveTo(0, j*cell_height);
-          ctx.lineTo(width_pixels, j*cell_height);
+          ctx.moveTo(0, j*side_length);
+          ctx.lineTo(width_pixels, j*side_length);
         }
         ctx.stroke();
       },
@@ -172,6 +173,7 @@ var GameDisplay = function(num_cells_x, num_cells_y, cell_width, cell_height, ca
             length_x,
             y, x;
         // each row
+        ctx.clearRect(0, 0, side_length*num_cells_x, side_length* num_cells_y);
         for (y = 0; y < length_y; y++) {
           length_x = cell_array[y].length;
           // each column in rows
@@ -183,9 +185,9 @@ var GameDisplay = function(num_cells_x, num_cells_y, cell_width, cell_height, ca
       },
       drawCell = function(cell) {
         // find start point (top left)
-        var start_x = cell.getXPos() * cell_width,
-            start_y = cell.getYPos() * cell_height;
-        // draw rect from that point, to bottom right point by adding cell_height/cell_width
+        var start_x = (cell.getXPos() + 0.5 * (cell.getYPos() % 2)) * side_length * sq3;
+        var start_y = cell.getYPos() * side_length * 1.5;
+        // draw rect from that point, to bottom right point by adding cell_height/side_length
         if (cell.getState() == "alive") {
           //console.log("it's alive!");
           if (colourful === true) {
@@ -195,9 +197,18 @@ var GameDisplay = function(num_cells_x, num_cells_y, cell_width, cell_height, ca
                 a=(Math.floor(Math.random()*6)+5)/10; // rand between 0.5 and 1.0
             ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
           }
-          ctx.fillRect(start_x, start_y, cell_width, cell_height);
+          
+          ctx.beginPath();
+          ctx.moveTo(start_x + sq3 * side_length/2, start_y);
+          ctx.lineTo(start_x + sq3 * side_length, start_y + 0.5 * side_length);
+          ctx.lineTo(start_x + sq3 * side_length, start_y + 1.5 * side_length);
+          ctx.lineTo(start_x + sq3 * side_length/2, start_y + 2 * side_length);
+          ctx.lineTo(start_x, start_y + 1.5 * side_length);
+          ctx.lineTo(start_x, start_y + 0.5 * side_length);
+          ctx.closePath();
+          ctx.fill();
         } else {
-          ctx.clearRect(start_x, start_y, cell_width, cell_height);
+          // ctx.clearRect(start_x, start_y, side_length, side_length);
         }
       },
       init = function() {

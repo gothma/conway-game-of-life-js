@@ -1,6 +1,8 @@
 Conway's Game of Life in Javascript/Canvas
 ==========================================
 
+This is a fork supporting hexagonal grids
+
 Examples
 --------
 
