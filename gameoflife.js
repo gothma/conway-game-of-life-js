@@ -61,14 +61,12 @@ var GameOfLife = function(params){
             var column_right = (x+1 <= length_x-1) ? x+1 : 0; // If current cell is on last row, then right cell is in the first row
 
             var neighbours = {
-              top_left: current_gen[row_above][column_left].clone(),
-              top_center: current_gen[row_above][x].clone(),
-              top_right: current_gen[row_above][column_right].clone(),
+              top_left: current_gen[row_above][(y % 2) ? x : column_left].clone(),
+              top_right: current_gen[row_above][(y % 2) ? column_right : x].clone(),
               left: current_gen[y][column_left].clone(),
               right: current_gen[y][column_right].clone(),
-              bottom_left: current_gen[row_below][column_left].clone(),
-              bottom_center: current_gen[row_below][x].clone(),
-              bottom_right: current_gen[row_below][column_right].clone()
+              bottom_left: current_gen[row_below][(y % 2) ? x : column_left].clone(),
+              bottom_right: current_gen[row_below][(y % 2) ? column_right : x].clone()
             };
 
             var alive_count = 0;
