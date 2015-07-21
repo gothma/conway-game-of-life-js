@@ -82,15 +82,15 @@ var GameOfLife = function(params){
             // Set new state to current state, but it may change below
             var new_state = cell.getState();
             if (cell.getState() == "alive") {
-              if (alive_count < 2 || alive_count > 3) {
+              if (alive_count == 4 || alive_count == 3) {
                 // new state: dead, overpopulation/ underpopulation
-                new_state = "dead";
-              } else if (alive_count === 2 || alive_count === 3) {
+                // new_state = "alive";
+              } else {
                 // lives on to next generation
-                new_state = "alive";
+                new_state = "dead";
               }
             } else {
-              if (alive_count === 3) {
+              if (alive_count === 2) {
                 // new state: live, reproduction
                 new_state = "alive";
               }
